@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>级联选择实践</title>
+	<link rel="stylesheet" href="">
+	<style>
+		a {text-decoration: none}
+		li {display: inline-block;list-style-type: none;cursor:pointer;margin-left:15px;color:grey;}
+		.selected {color:red;}
+		button,p {margin-left: 55px;}
+	</style>
+	<script src="http://cdn.bootcss.com/vue/2.1.5/vue.min.js"></script>
+	<script src="./data.js"></script>
+</head>
+<body>
+	<div id="wrapper">
+		<ul>
+			<li v-for="(grade, index) in gradesList" v-on:click="changeGrade(index)" :class="{'selected': index===indexObj.grade}"><a>{{grade.gradeName}}</a></li>
+		</ul>
+		<ul>
+			<li v-for="(course, index) in coursesList" v-on:click="changeCourse(index)" :class="{'selected': index===indexObj.course}"><a>{{course.courseName}}</a></li>
+		</ul>
+		<ul>
+			<li v-for="(version, index) in versionsList" v-on:click="changeVersion(index)" :class="{'selected': index===indexObj.version}"><a>{{version.versionName}}</a></li>
+		</ul>
+		<ul>
+			<li v-for="(volume, index) in volumesList" v-on:click="changeVolume(index)" :class="{'selected': index===indexObj.volume}"><a>{{volume.volumeName}}</a></li>
+		</ul>
+		<button v-on:click="submit">保存</button>
+		<p v-html="result"></p>
+	</div>
+<script>
+	var vm = new Vue({
+		el: '#wrapper',
+		data () {
+			return {
+				gradesList: [],
+				coursesList: [],
+				versionsList: [],
+				volumesList: [],
+				indexObj: {
+					grade: 0,
+					course: 0,
+					version: 0,
+					volume: 0
+				},
+				result: ''
+			}
+		},
+		methods: {
+			render () {
+				[this.coursesList, this.versionsList, this.volumesList] = [[], [], []]
+				this.gradesList[this.indexObj.grade].courses.map((course) => {this.coursesList.push(course)})
+				this.coursesList[this.indexObj.course].versions.map((version) => {this.versionsList.push(version)})
+				this.versionsList[this.indexObj.version].volumes.map((volume) => {this.volumesList.push(volume)})
+			},
+			changeGrade (index) {
+				this.indexObj = {
+					grade: index,
+					course: 0,
+					version: 0,
+					volume: 0
+				}
+				this.render()
+			},
+			changeCourse (index) {
+				this.indexObj.course = index
+				this.indexObj.version = 0
+				this.indexObj.volume = 0
+				this.render()
+			},
+			changeVersion (index) {
+				this.indexObj.version = index
+				this.indexObj.volume = 0
+				this.render()
+			},
+			changeVolume (index) {
+				this.indexObj.volume = index
+				this.render()
+			},
+			submit () {
+				this.result = `Selected gradeId = ${this.gradesList[this.indexObj.grade].gradeId} 
+				courseId = ${this.coursesList[this.indexObj.course].courseId} 
+				versionId = ${this.versionsList[this.indexObj.version].versionId} 
+				volumeId = ${this.volumesList[this.indexObj.volume].textbookId}`
+			}
+		},
+		mounted () {
+			data.result.grades.map((grade) => {this.gradesList.push(grade)})
+			this.render()
+		}
+	})
+</script>
+</body>
+</html>
